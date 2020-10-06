@@ -5,7 +5,17 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      dismissDefaultMessages: false,
+      forbidUnknownValues: true,
+      forbidNonWhitelisted: true,
+    }),
+  );
+
   await app.listen(8080);
 }
+
 bootstrap();

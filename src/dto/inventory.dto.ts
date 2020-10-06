@@ -8,23 +8,27 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-import { Product, ProductArticle } from '../interfaces';
+import { InventoryItem } from '../interfaces';
 
-export class ProductDto implements Product {
+export class InventoryItemDto implements InventoryItem {
+  @IsString()
+  @IsNotEmpty()
+  art_id: string;
+
   @IsString()
   @IsNotEmpty()
   name: string;
 
+  @IsNumber()
   @IsNotEmpty()
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  contain_articles: ProductArticle[];
+  @Min(0)
+  stock: number;
 }
 
-export class ProductsDto {
+export class InventoryDto {
   @IsNotEmpty()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => ProductDto)
-  products: ProductDto[];
+  @Type(() => InventoryItemDto)
+  inventory: InventoryItemDto[];
 }

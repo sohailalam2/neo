@@ -1,43 +1,48 @@
 import { Injectable } from '@nestjs/common';
+import { DbService } from './db/db.service';
 
-import { Article } from './interfaces';
-
-const articles = {
-  inventory: [
-    {
-      art_id: '1',
-      name: 'leg',
-      stock: '12',
-    },
-    {
-      art_id: '2',
-      name: 'screw',
-      stock: '17',
-    },
-    {
-      art_id: '3',
-      name: 'seat',
-      stock: '2',
-    },
-    {
-      art_id: '4',
-      name: 'table top',
-      stock: '1',
-    },
-  ],
-};
+import { InventoryItem, Product } from './interfaces';
 
 @Injectable()
 export class AppService {
-  async getArticles(): Promise<Article[]> {
-    return articles.inventory;
+  constructor(private readonly db: DbService) {}
+
+  async getInventory(): Promise<InventoryItem[]> {
+    return this.db.find<InventoryItem[]>('art_id');
+  }
+  async updateInventory(inventory: InventoryItem[]) {
+    return this.db.insert<InventoryItem[]>(inventory);
   }
 
-  async getArticleById(id: string): Promise<Article> {
-    return articles.inventory.find(i => i.art_id === id);
+  async getProducts(): Promise<Product[]> {
+    return this.db.find<Product[]>('contain_articles');
   }
 
-  async updateArticles(articles: Article[]) {
-    return articles;
+  async getProductByName(name: string): Promise<Product> {
+    return this.db.find<Product>('name', name);
+  }
+
+  async updateProducts(products: Product[]): Promise<Product[]> {
+    return this.db.insert<Product[]>(products);
+  }
+
+  async removeProductByName(name: string): Promise<void> {
+    const product = await this.getProductByName(name);
+
+    if (product) {
+      const promises = product.contain_articles.map(async inventoryItem => {
+        return this.db.filterAndUpdate(
+          { art_id: inventoryItem.art_id },
+          (item: InventoryItem) => {
+            item.stock -= inventoryItem.amount_of;
+
+            return item;
+          },
+        );
+      });
+
+      await Promise.all(promises);
+      await this.db.remove('name', name);
+    }
   }
 }
