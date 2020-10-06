@@ -1,8 +1,6 @@
 import {
   IsString,
   IsNotEmpty,
-  IsNumber,
-  Min,
   ArrayNotEmpty,
   ValidateNested,
 } from 'class-validator';

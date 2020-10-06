@@ -54,14 +54,40 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
-### Linting
+## API
 
-There is an extensive support for linting via ESLint which enforces strict rules. The following commands can be used to help lint or fix minor linting issues:
+The following APIs are supported, a Postman collection is also available for download from [here](/mocks/Neo%20Api.postman_collection.json).
 
-```bash
-# Format the code
-$ npm run format
+### GET /health
 
-# Auto fix linting issues
-$ npm run lint
-```
+Get the health of the application
+
+### GET /inventory
+
+Get the list of all inventory items
+
+### PUT /inventory
+
+Upload the list of inventory items to the db
+
+A 400 Bad Request error is sent if the upload file is corrupted or is not in the expected format
+
+### GET /products
+
+Get the list of products
+
+### PUT /products
+
+Upload the list of products to the db
+
+A 400 Bad Request error is sent if the upload file is corrupted or is not in the expected format
+
+### GET /products/:name
+
+Get a product by its name
+
+A 404 Not Found error response is sent if the item is not found
+
+### DELETE /products/:name
+
+Delete a given product and update the inventory stock

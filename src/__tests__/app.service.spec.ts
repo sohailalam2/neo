@@ -158,19 +158,6 @@ describe('AppService', () => {
   describe('removeProductByName', () => {
     it('should remove the product and decrement the inventory item stock', async () => {
       const product = PRODUCTS[0];
-      const updatedInventory = INVENTORY_ITEMS.map(item => {
-        const found = product.contain_articles.find(
-          p => p.art_id === item.art_id,
-        );
-
-        if (!found) return item;
-
-        return {
-          ...item,
-          stock: item.stock - found.amount_of,
-        };
-      });
-
       spyFind.mockResolvedValueOnce(product);
 
       const items = await service.removeProductByName(product.name);

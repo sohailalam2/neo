@@ -10,7 +10,6 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { validateOrReject } from 'class-validator';
 
 import { AppService } from './app.service';
 import { FileDto, InventoryDto, ProductsDto, ProductDto } from './dto';
@@ -45,7 +44,9 @@ export class AppController {
   /**
    * PUT /inventory
    *
-   * Update the inventory list with the given items
+   * Upload the list of inventory items to the db
+   *
+   * A 400 Bad Request error is sent if the upload file is corrupted or is not in the expected format
    *
    * @param file The file containing the inventory items
    */
@@ -67,6 +68,11 @@ export class AppController {
     return { inventory };
   }
 
+  /**
+   * GET /products
+   *
+   * Get the list of products
+   */
   @Get('products')
   async getProducts(): Promise<ProductsDto> {
     const products = await this.service.getProducts();
@@ -74,6 +80,15 @@ export class AppController {
     return { products };
   }
 
+  /**
+   * PUT /products
+   *
+   * Upload the list of products to the db
+   *
+   * A 400 Bad Request error is sent if the upload file is corrupted or is not in the expected format
+   *
+   * @param file the file containing products information
+   */
   @Put('products')
   @UseInterceptors(FileInterceptor('file'))
   async updateProducts(@UploadedFile() file: FileDto): Promise<ProductsDto> {
@@ -92,6 +107,15 @@ export class AppController {
     return { products };
   }
 
+  /**
+   * GET /products/:name
+   *
+   * Get a product by its name
+   *
+   * A 404 Not Found error response is sent if the item is not found
+   *
+   * @param name product name
+   */
   @Get('products/:name')
   async getProductByName(@Param('name') name: string): Promise<ProductDto> {
     const found = await this.service.getProductByName(name);
@@ -103,6 +127,13 @@ export class AppController {
     throw new NotFoundException(`No such product found with name ${name}`);
   }
 
+  /**
+   * DELETE /products/:name
+   *
+   * Delete a given product and update the inventory stock
+   *
+   * @param name The name of the product
+   */
   @Delete('products/:name')
   async removeProductByName(@Param('name') name: string): Promise<void> {
     await this.service.removeProductByName(name);
